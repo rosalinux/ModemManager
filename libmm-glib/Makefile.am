@@ -83,6 +83,8 @@ libmm_glib_la_SOURCES = \
 	mm-signal.c \
 	mm-kernel-event-properties.h \
 	mm-kernel-event-properties.c \
+	mm-call-audio-format.h \
+	mm-call-audio-format.c \
 	$(NULL)
 
 libmm_glib_la_CPPFLAGS = \
@@ -152,6 +154,7 @@ include_HEADERS = \
 	mm-cdma-manual-activation-properties.h \
 	mm-signal.h \
 	mm-kernel-event-properties.h \
+	mm-call-audio-format.h \
 	$(NULL)
 
 CLEANFILES =
