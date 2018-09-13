@@ -521,6 +521,10 @@ libmm_plugin_simtech_la_SOURCES = \
 	simtech/mm-plugin-simtech.h \
 	simtech/mm-broadband-modem-simtech.h \
 	simtech/mm-broadband-modem-simtech.c \
+	simtech/mm-broadband-modem-qmi-simtech.h \
+	simtech/mm-broadband-modem-qmi-simtech.c \
+	simtech/mm-call-qmi-simtech.h \
+	simtech/mm-call-qmi-simtech.c \
 	$(NULL)
 libmm_plugin_simtech_la_CPPFLAGS = $(PLUGIN_COMMON_COMPILER_FLAGS)
 libmm_plugin_simtech_la_LDFLAGS  = $(PLUGIN_COMMON_LINKER_FLAGS)
