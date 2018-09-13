@@ -1,0 +1,15 @@
+ACTION!="add|change|move", GOTO="mm_simtech_port_blacklist_end"
+SUBSYSTEM!="tty", GOTO="mm_simtech_port_blacklist_end"
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="1e0e", GOTO="mm_simtech_port_blacklist"
+GOTO="mm_simtech_port_blacklist_end"
+
+LABEL="mm_simtech_port_blacklist"
+
+# This test must be separate because idVendor/idProduct and
+# bInterfaceNumber are on different parents
+SUBSYSTEMS=="usb", ATTRS{bInterfaceNumber}=="?*", ENV{.MM_USBIFNUM}="$attr{bInterfaceNumber}"
+
+# SIMCom SIM7100
+ATTRS{idVendor}=="1e0e", ATTRS{idProduct}=="9001", ENV{.MM_USBIFNUM}=="04", ENV{ID_MM_CANDIDATE}="0", GROUP="audio"
+
+LABEL="mm_simtech_port_blacklist_end"

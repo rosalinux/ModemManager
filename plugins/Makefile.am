@@ -596,7 +596,9 @@ libmm_plugin_simtech_la_SOURCES = \
 libmm_plugin_simtech_la_CPPFLAGS = $(PLUGIN_COMMON_COMPILER_FLAGS)
 libmm_plugin_simtech_la_LDFLAGS  = $(PLUGIN_COMMON_LINKER_FLAGS)
 
-dist_udevrules_DATA += simtech/77-mm-simtech-port-types.rules
+dist_udevrules_DATA += \
+	simtech/77-mm-simtech-port-types.rules \
+	simtech/85-mm-simtech-ports.rules
 
 AM_CFLAGS += -DTESTUDEVRULESDIR_SIMTECH=\"${srcdir}/simtech\"
 
