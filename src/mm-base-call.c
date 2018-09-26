@@ -147,7 +147,7 @@ cleanup_unsolicited_events (MMBaseCall  *self,
  * then we assume the call attempt is finished and we transition to TERMINATED.
  */
 
-#define INCOMING_TIMEOUT_SECS 5
+#define INCOMING_TIMEOUT_SECS 7
 
 static gboolean
 incoming_timeout_cb (MMBaseCall *self)
