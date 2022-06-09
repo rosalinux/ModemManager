@@ -612,12 +612,76 @@ process_initial_kernel_events (MMBaseManager *self)
     g_free (contents);
 }
 
+/*****************************************************************************/
+/* MTK embedded modem */
+
+static gboolean
+create_mtk_modem (const gchar *id,
+                  const gchar *plugin_name,
+                  const gchar **ports,
+                  MMBaseManager *self)
+{
+    MMPlugin *plugin;
+    MMDevice *device;
+    gchar *physdev_uid;
+    GError *error = NULL;
+
+    mm_obj_info (self, "test profile set to: '%s'", id);
+
+    /* Create device and keep it listed in the Manager */
+    physdev_uid = g_strdup_printf ("/virtual/%s", id);
+    device = mm_device_new (physdev_uid, TRUE, TRUE, self->priv->object_manager);
+    g_hash_table_insert (self->priv->devices, physdev_uid, device);
+
+    /* Grab virtual ports */
+    mm_device_virtual_grab_ports (device, (const gchar **)ports);
+
+    /* Set plugin to use */
+    plugin = mm_plugin_manager_peek_plugin (self->priv->plugin_manager, plugin_name);
+    if (!plugin) {
+        error = g_error_new (MM_CORE_ERROR,
+                             MM_CORE_ERROR_NOT_FOUND,
+                             "Requested plugin '%s' not found",
+                             plugin_name);
+        mm_obj_warn (self, "couldn't set plugin for virtual device '%s': %s",
+                     mm_device_get_uid (device),
+                     error->message);
+        goto out;
+    }
+    mm_device_set_plugin (device, G_OBJECT (plugin));
+
+    /* Create modem */
+    if (!mm_device_create_modem (device, &error)) {
+        mm_obj_warn (self, "couldn't create modem for virtual device '%s': %s",
+                     mm_device_get_uid (device),
+                     error->message);
+        goto out;
+    }
+
+    mm_obj_info (self, "modem for virtual device '%s' successfully created",
+                 mm_device_get_uid (device));
+
+out:
+
+    if (error) {
+        mm_device_remove_modem (device);
+        g_hash_table_remove (self->priv->devices, mm_device_get_uid (device));
+        g_error_free (error);
+    }
+
+    return TRUE;
+}
+
 void
 mm_base_manager_start (MMBaseManager *self,
                        gboolean       manual_scan)
 {
     g_return_if_fail (self != NULL);
     g_return_if_fail (MM_IS_BASE_MANAGER (self));
+
+    const gchar *virtual_ports[] = {"radio/pttycmd2", NULL};
+    create_mtk_modem("1", "mtk", virtual_ports, self);
+    return;
 
     if (!self->priv->auto_scan && !manual_scan) {
         /* If we have a list of initial kernel events, process it now */

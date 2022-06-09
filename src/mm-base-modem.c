@@ -312,7 +312,7 @@ static MMPort *
 base_modem_create_virtual_port (MMBaseModem *self,
                                 const gchar *name)
 {
-    return MM_PORT (mm_port_serial_at_new (name, MM_PORT_SUBSYS_UNIX));
+    return MM_PORT (mm_port_serial_at_new (name, MM_PORT_SUBSYS_UNKNOWN));
 }
 
 static MMPort *
