@@ -1486,6 +1486,11 @@ modem_load_unlock_required (MMIfaceModem *self,
 
     task = g_task_new (self, NULL, callback, user_data);
 
+    mm_obj_dbg (self, "skipping unlock check in MTK modem...");
+    g_task_return_int (task, MM_MODEM_LOCK_NONE);
+    g_object_unref (task);
+    return;
+
     /* CDMA-only modems don't need this */
     if (mm_iface_modem_is_cdma_only (self)) {
         mm_obj_dbg (self, "skipping unlock check in CDMA-only modem...");
@@ -4372,6 +4377,12 @@ get_next_facility_lock_status (GTask *task)
 
     self = g_task_get_source_object (task);
     ctx = g_task_get_task_data (task);
+
+    /* Skip facility lock check */
+    mm_obj_dbg (self, "Skipping facility locks...");
+    g_task_return_int (task, ctx->locks);
+    g_object_unref (task);
+    return;
 
     for (i = ctx->current; i < sizeof (MMModem3gppFacility) * 8; i++) {
         guint32 facility = 1u << i;
