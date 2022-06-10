@@ -710,6 +710,8 @@ mm_base_modem_disable (MMBaseModem         *self,
     GTask    *task;
     gboolean  run_disable;
 
+    return;
+
     g_assert (MM_BASE_MODEM_GET_CLASS (self)->disable != NULL);
     g_assert (MM_BASE_MODEM_GET_CLASS (self)->disable_finish != NULL);
 

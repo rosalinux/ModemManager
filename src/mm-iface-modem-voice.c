@@ -88,6 +88,9 @@ mm_iface_modem_voice_authorize_outgoing_call (MMIfaceModemVoice  *self,
      */
 
     /* If we're not in emergency mode, the call (emergency or normal) is always allowed */
+
+    emergency_only = FALSE;
+
     if (!emergency_only) {
         mm_obj_dbg (self, "voice call to %s allowed", number);
         call_allowed = TRUE;
