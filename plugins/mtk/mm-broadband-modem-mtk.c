@@ -395,6 +395,7 @@ load_current_modes_finish (MMIfaceModem *self,
             *preferred = MM_MODEM_MODE_3G;
             break;
         case 3:
+        case 4:
             *preferred = MM_MODEM_MODE_4G;
             break;
         default:
@@ -404,9 +405,9 @@ load_current_modes_finish (MMIfaceModem *self,
     }
 
 done:
-    if (r)
-        g_regex_unref (r);
-    g_match_info_free (match_info);
+//    if (r)
+//        g_regex_unref (r);
+//    g_match_info_free (match_info);
 
     return result;
 }
