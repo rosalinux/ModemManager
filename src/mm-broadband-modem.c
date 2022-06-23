@@ -10717,14 +10717,29 @@ static const gchar *primary_init_sequence[] = {
     "X4",
     /* Assert DCD when carrier detected */
     "&C1",
-    /* MTK modem call */
+    /* MTK modem init */
+    "ATE0Q0V1",
+    "AT+ICCID=1",
+    "AT+ESIMS=1",
+    "AT+ESBP=5,\"SBP_ETWS_FOR_AOSP_DESIGN\",1",
+    "AT+ESBP=5,\"SBP_TERMINAL_CAPABILITY_FLEX\",1",
+    "AT+PSBEARER=1",
+    "AT+ECSQ=1",
+    "AT+CTZR=3",
+    "AT+ECSG=4,1",
+    "AT+EOPS=3,2",
+    "AT+EMODCFG=1",
+    "AT+EIMSESS=1",
     "ATS0=0",
-    "AT+CCWA=1",
     "AT+ECPI=4294967295",
-    "AT+EAIC=2",
     "AT+EVOCD=1",
     "AT+ECCP=1",
     "AT+EECCFC=1",
+    "AT+EIUSD=2,4,1,\"\",\"\",0",
+    "AT+CSSN=1,1",
+    "AT+COLP=1",
+    "AT+CNAP=1",
+    "AT+ESSP=1",
     NULL
 };
 
