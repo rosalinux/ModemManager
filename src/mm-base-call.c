@@ -1111,9 +1111,9 @@ call_accept_ready (MMBaseModem  *modem,
     response = mm_base_modem_at_command_finish (modem, res, &error);
 
     /* check response for error */
-    if (response && response[0])
-        g_set_error (&error, MM_CORE_ERROR, MM_CORE_ERROR_FAILED,
-                     "Couldn't accept the call: Unhandled response '%s'", response);
+//    if (response && response[0])
+//        g_set_error (&error, MM_CORE_ERROR, MM_CORE_ERROR_FAILED,
+//                     "Couldn't accept the call: Unhandled response '%s'", response);
 
     if (error)
         g_task_return_error (task, error);
