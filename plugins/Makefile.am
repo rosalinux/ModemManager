@@ -1049,8 +1049,12 @@ pkglib_LTLIBRARIES += libmm-plugin-mtk.la
 libmm_plugin_mtk_la_SOURCES = \
 	mtk/mm-plugin-mtk.c \
 	mtk/mm-plugin-mtk.h \
+	mtk/mm-broadband-bearer-mtk.c \
+	mtk/mm-broadband-bearer-mtk.h \
 	mtk/mm-broadband-modem-mtk.h \
 	mtk/mm-broadband-modem-mtk.c \
+	mtk/mm-modem-helpers-mtk.c \
+	mtk/mm-modem-helpers-mtk.h \
 	$(NULL)
 libmm_plugin_mtk_la_CPPFLAGS = \
 	$(PLUGIN_COMMON_COMPILER_FLAGS) \
