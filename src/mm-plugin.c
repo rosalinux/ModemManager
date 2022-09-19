@@ -1076,6 +1076,12 @@ mm_plugin_create_modem (MMPlugin  *self,
             /* Give an empty set of rules, because we don't want them to be
              * loaded from the udev rules path (as there may not be any
              * installed yet). */
+
+            MMPortSerialAtFlag port_serial_flags[] = {MM_PORT_SERIAL_AT_FLAG_PRIMARY, MM_PORT_SERIAL_AT_FLAG_SECONDARY, MM_PORT_SERIAL_AT_FLAG_PPP};
+            MMPortSerialAtFlag port_serial_flag = MM_PORT_SERIAL_AT_FLAG_NONE;
+            if (i < 3)
+                port_serial_flag = port_serial_flags[i];
+
             kernel_device = mm_kernel_device_generic_new_with_rules (properties, NULL, &inner_error);
             if (!kernel_device) {
                 mm_obj_warn (self, "could not create generic device for virtual port %s: %s",
@@ -1085,7 +1091,7 @@ mm_plugin_create_modem (MMPlugin  *self,
             } else if (!mm_base_modem_grab_port (modem,
                                                  kernel_device,
                                                  MM_PORT_TYPE_AT,
-                                                 MM_PORT_SERIAL_AT_FLAG_NONE,
+                                                 port_serial_flag,
                                                  &inner_error)) {
                 mm_obj_warn (self, "could not grab virtual port %s: %s",
                              virtual_ports[i],

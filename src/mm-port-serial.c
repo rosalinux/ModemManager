@@ -1361,7 +1361,7 @@ _close_internal (MMPortSerial *self, gboolean force)
 
     mm_obj_dbg (self, "device open count is %d (close)", self->priv->open_count);
 
-    if (self->priv->open_count >= 0 && !force)
+    if (self->priv->open_count > 0)
         return;
 
     if (self->priv->connected_id) {
@@ -1499,7 +1499,7 @@ port_serial_close_force (MMPortSerial *self)
     port_serial_reopen_cancel (self);
 
     /* If already closed, done */
-    if (self->priv->open_count >= 0) {
+    if (self->priv->open_count > 0) {
         _close_internal (self, TRUE);
 
         /* Notify about the forced close status */

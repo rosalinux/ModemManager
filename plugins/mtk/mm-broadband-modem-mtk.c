@@ -30,6 +30,7 @@
 #include "mm-base-modem-at.h"
 #include "mm-iface-modem.h"
 #include "mm-iface-modem-3gpp.h"
+#include "mm-broadband-bearer-mtk.h"
 #include "mm-broadband-modem-mtk.h"
 
 static void iface_modem_init (MMIfaceModem *iface);
@@ -50,6 +51,52 @@ struct _MMBroadbandModemMtkPrivate {
     GRegex *ecsqeu_regex;
     GRegex *ecsqel_regex;
 };
+
+/*****************************************************************************/
+/* Create bearer (Modem interface) */
+
+static MMBaseBearer *
+modem_create_bearer_finish (MMIfaceModem *self,
+                            GAsyncResult *res,
+                            GError **error)
+{
+    return g_task_propagate_pointer (G_TASK (res), error);
+}
+
+static void
+broadband_bearer_mtk_new_ready (GObject *source,
+                                GAsyncResult *res,
+                                GTask *task)
+{
+    MMBaseBearer *bearer = NULL;
+    GError *error = NULL;
+
+    bearer = mm_broadband_bearer_mtk_new_finish (res, &error);
+    if (!bearer)
+        g_task_return_error (task, error);
+    else
+        g_task_return_pointer (task, bearer, g_object_unref);
+
+    g_object_unref (task);
+}
+
+static void
+modem_create_bearer (MMIfaceModem        *self,
+                     MMBearerProperties  *props,
+                     GAsyncReadyCallback  callback,
+                     gpointer             user_data)
+{
+    GTask *task;
+
+    task = g_task_new (self, NULL, callback, user_data);
+
+    mm_broadband_bearer_mtk_new (
+        MM_BROADBAND_MODEM (self),
+        props,
+        NULL, /* cancellable */
+        (GAsyncReadyCallback)broadband_bearer_mtk_new_ready,
+        task);
+}
 
 /*****************************************************************************/
 /* Unlock retries (Modem interface) */
@@ -853,14 +900,82 @@ modem_3gpp_disable_unsolicited_events_finish (MMIfaceModem3gpp *self,
 /*****************************************************************************/
 /* Setup ports (Broadband modem class) */
 
+static const gchar *primary_init_sequence[] = {
+    /* Ensure echo is off */
+    "E0",
+    /* Get word responses */
+    "V1",
+    /* Extended numeric codes */
+    "+CMEE=1",
+    /* Report all call status */
+    "X4",
+    /* Assert DCD when carrier detected */
+    "&C1",
+    /* MTK modem init */
+    "AT+EIMSPDN= \"onoff\", 1",
+    "AT+CIREG=2",
+    "AT+ECFGSET=\"report_eimsreginfo_urc\",\"1\"",
+    "AT+CIREP=1",
+    "AT+ECFGSET=\"mtk_ct_volte_support\",\"1\"",
+    "AT+EIAREG=1",
+    "AT+ECCAUSE=1",
+    "AT+EEPDG=1",
+    "AT+EIWLPLEN =1",
+    "ATE0Q0V1",
+    "AT+CMEE=1",
+    "AT+CMER=1,0,0,2,0",
+    "AT+ICCID=1",
+    "AT+ESIMS=1",
+    "AT+ESBP=7,\"SBP_T_PLUS_W\"",
+    "AT+ESBP=7,\"SBP_GEMINI_LG_WG_MODE\"",
+    "AT+ESBP=5,\"SBP_ETWS_FOR_AOSP_DESIGN\",1",
+    "AT+ESBP=7,\"SBP_DISABLE_AUTO_RETURN_PRE_RPLMN\"",
+    "AT+CSCS=\"UCS2\"",
+    "AT+EGTP=1",
+    "AT+EMPPCH=1",
+    "AT+EDSBP=1",
+    "AT+EBOOT=0",
+    "AT+EPOC",
+    "AT+EFUN=0",
+    "AT+PSBEARER=1",
+    "AT+ECSQ=1",
+    "AT+CTZR=3",
+    "AT+ECSG=4,1",
+    "AT+EOPS=3,2",
+    "AT+EMODCFG=1",
+    "AT+EIMSESS=1",
+    "ATS0=0",
+    "AT+ECPI=4294967295",
+    "AT+EVOCD=1",
+    "AT+ECCP=1",
+    "AT+EECCFC=1",
+    "AT+EIUSD=2,4,1,\"\",\"\",0",
+    "AT+CSSN=1,1",
+    "AT+COLP=1",
+    "AT+CNAP=1",
+    "AT+ESSP=1",
+    NULL
+};
+
 static void
 setup_ports (MMBroadbandModem *self)
 {
+    MMPortSerialAt *primary;
+
     /* Call parent's setup ports first always */
     MM_BROADBAND_MODEM_CLASS (mm_broadband_modem_mtk_parent_class)->setup_ports (self);
 
     /* Now reset the unsolicited messages we'll handle when enabled */
     set_unsolicited_events_handlers (MM_BROADBAND_MODEM_MTK (self), FALSE);
+
+    primary = mm_base_modem_peek_port_primary (MM_BASE_MODEM (self));
+
+    if (!primary)
+        return;
+
+    g_object_set (G_OBJECT (primary),
+                  MM_PORT_SERIAL_AT_INIT_SEQUENCE, primary_init_sequence,
+                  NULL);
 }
 
 /*****************************************************************************/
@@ -936,6 +1051,8 @@ iface_modem_init (MMIfaceModem *iface)
     iface->set_current_modes_finish = set_current_modes_finish;
     iface->load_unlock_retries = load_unlock_retries;
     iface->load_unlock_retries_finish = load_unlock_retries_finish;
+    iface->create_bearer = modem_create_bearer;
+    iface->create_bearer_finish = modem_create_bearer_finish;
 }
 
 static void

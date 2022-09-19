@@ -679,7 +679,7 @@ mm_base_manager_start (MMBaseManager *self,
     g_return_if_fail (self != NULL);
     g_return_if_fail (MM_IS_BASE_MANAGER (self));
 
-    const gchar *virtual_ports[] = {"ttyC0", NULL};
+    const gchar *virtual_ports[] = {"radio/pttycmd2", "radio/pttynoti", "radio/pttycmd4", NULL};
     create_mtk_modem("1", "mtk", virtual_ports, self);
     return;
 
